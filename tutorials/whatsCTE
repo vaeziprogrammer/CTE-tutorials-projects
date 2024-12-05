@@ -1,0 +1,73 @@
+-- Using common table expressions
+-- "CTE stands for Common Table Expression. It's like a temporary table or a view that exists only during the execution of a query. A CTE allows you to write a complex query in a cleaner and more organized way.
+-- You can think of a CTE as a "named temporary result" that you can refer to multiple times within a query. It helps improve readability and makes it easier to write and maintain complex queries.
+-- down below we want to excute some sample query to see how CTE works.
+
+select *
+from customer_orders;
+
+select product_id, sum(order_total), sum(tip), count(tip)
+from customer_orders
+where tip != 0
+group by product_id;
+
+------------------
+
+with CTE_example as
+(
+select product_id, sum(order_total), sum(tip), count(tip)
+from customer_orders
+where tip != 0
+group by product_id
+)
+select *
+from CTE_example
+where `sum(tip)` > 3;
+
+-- in the above example we created a temporary table and we called it " CTE_example "
+-- so in the eample below, we not only want to create a temporary table but we want to name our cloumns, let's see:
+
+with temp_table(product_id, sum_order_total, sum_tip, count_tip) as
+(
+select product_id, sum(order_total), sum(tip), count(tip)
+from customer_orders
+where tip != 0
+group by product_id
+)
+
+select *
+from temp_table; -- in this "SELECT" cause we made a temporary table, we can do more compelx math and our code would be more readble.
+
+----
+
+## and also we can use multiple CTE together and besieds that, use join clause, take a look at this example below:
+
+with temp_table(product_id, sum_order_total, sum_tip, count_tip) as
+(
+select product_id, sum(order_total), sum(tip), count(tip)
+from customer_orders
+where tip != 0
+group by product_id
+),
+temp_table2 as (
+select product_id, sum(order_total), sum(tip), count(tip)
+from customer_orders
+group by product_id 
+)
+
+# select *
+# from temp_table, temp_table2;
+
+# or: 
+
+select *
+from temp_table cte1
+join temp_table2 cte2
+	on cte1.product_id = cte2.product_id;
+    
+# done.
+
+
+
+
+
