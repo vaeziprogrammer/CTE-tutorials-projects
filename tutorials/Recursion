@@ -1,0 +1,41 @@
+-- Recursion in CTEs
+
+Select *
+from employees;
+
+
+-- Step 1: Base case: Get the top-level employee (who has no boss)
+-- Top-level employee has level 0
+-- This ensures we're selecting the CEO or top boss (who has no boss)
+-- Step 2: Recursive case: Get employees who report to the bosses from the previous step
+-- Increment hierarchy level for each employee below the top boss
+-- Join to find employees reporting to the previous level's boss
+
+With recursive company_hierarchy as (
+select employee_id, first_name, last_name, boss_id,
+0 as hierarchy_level 
+from employees
+where boss_id is null 
+
+union all
+
+select e.employee_id, e.first_name, e.last_name, e.boss_id, hierarchy_level + 1 
+from employees e, company_hierarchy ch
+where e.boss_id = ch.employee_id 
+)
+
+-- Final selection: Get the hierarchy with employee and their boss names
+SELECT ch.first_name Employee_First_Name, ch.last_name Employee_Last_Name,
+       e.first_name Boss_First_Name, e.last_name Boss_Last_Name,
+       hierarchy_level
+FROM company_hierarchy ch
+JOIN employees e
+ON ch.boss_id = e.employee_id;
+
+# done
+
+
+
+
+
+
